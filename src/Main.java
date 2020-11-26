@@ -39,7 +39,6 @@ public class Main {
 
             aiTurn();
             printMap();
-//            if (checkWin(DOT_O)) {
             if (smartCheckWin(DOT_O)) {
                 System.out.println("Комьютер победил");
                 break;
@@ -119,15 +118,10 @@ public class Main {
     static boolean smartCheckWin(char c) {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-//                   ***************************
-
                 if (map[i][j] == c) {
-//                    System.out.printf("Первый цикл c=%c i=%d= j=%d ",c,i,j);
-//                    System.out.println();
                     if (checkLine(map[i][j], i, j)) {
                         return true;
                     }
-//                   ***************************
                 }
             }
         }
@@ -136,9 +130,6 @@ public class Main {
 
     static boolean checkLine(char c, int i, int j) {
 
-//        if (!isCoordinateValid(i, j)) {
-//            return false;
-//        }
         for (direction dir : direction.values()) {
 //            System.out.print(dir+" ");
             if (vectorDirection(dir, i, j, c)) {
@@ -155,7 +146,7 @@ public class Main {
         int deltaJ = 0;
         switch (iDirection) {
             case I0Jm:
-                if ((j-DOTS_TO_WIN  < 0)) {
+                if ((j - DOTS_TO_WIN < 0)) {
                     return false;
                 }
                 System.out.println(iDirection);
@@ -171,7 +162,7 @@ public class Main {
                 deltaJ = 1;
                 break;
             case ImJ0:
-                if ((i-DOTS_TO_WIN  < 0)) {
+                if ((i - DOTS_TO_WIN < 0)) {
                     return false;
                 }
                 System.out.println(iDirection);
@@ -179,7 +170,7 @@ public class Main {
                 deltaJ = 0;
                 break;
             case ImJm:
-                if (((i-DOTS_TO_WIN)<0)|| ((j-DOTS_TO_WIN) < 0)) {
+                if (((i - DOTS_TO_WIN) < 0) || ((j - DOTS_TO_WIN) < 0)) {
                     return false;
                 }
                 System.out.println(iDirection);
@@ -187,7 +178,7 @@ public class Main {
                 deltaJ = -1;
                 break;
             case ImJp:
-                if ( ((i-DOTS_TO_WIN)  < 0)|(j + DOTS_TO_WIN > SIZE)) {
+                if (((i - DOTS_TO_WIN) < 0) | (j + DOTS_TO_WIN > SIZE)) {
                     return false;
                 }
                 System.out.println(iDirection);
@@ -203,7 +194,7 @@ public class Main {
                 deltaJ = 0;
                 break;
             case IpJm:
-                if ((i + DOTS_TO_WIN > SIZE) | (j-DOTS_TO_WIN < 0)) {
+                if ((i + DOTS_TO_WIN > SIZE) | (j - DOTS_TO_WIN < 0)) {
                     return false;
                 }
                 System.out.println(iDirection);
@@ -223,30 +214,23 @@ public class Main {
         }
 
         for (int k = 0; k < DOTS_TO_WIN; k++) {
-
-//            System.out.printf("i=%d + deltaI=%d j=%d + deltaJ=%d k=%d c=%c", i,deltaI,j, deltaJ, k, c);
-//            System.out.println();
-            if (map[i ][j] == c) {
+            if (map[i][j] == c) {
                 char tmp = map[i][j];
-
-                    count++;
-//                    System.out.printf("Проверяем i=%d + deltaI=%d j=%d + deltaJ=%d k=%d c=%c", i,deltaI,j, deltaJ, k, c);
-//                    System.out.println(count);
-                } else {
-                    return false;
-                }
-                i+=deltaI;
-                j+=deltaJ;
+                count++;
+            } else {
+                return false;
             }
+            i += deltaI;
+            j += deltaJ;
+        }
 
         if (count == 3) {
-
             return true;
         } else {
             return false;
         }
 
     }
-    }
+}
 
 
