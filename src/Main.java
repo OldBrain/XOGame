@@ -149,7 +149,6 @@ public class Main {
                 if ((j - DOTS_TO_WIN < 0)) {
                     return false;
                 }
-                System.out.println(iDirection);
                 deltaI = 0;
                 deltaJ = -1;
                 break;
@@ -157,7 +156,6 @@ public class Main {
                 if ((j + DOTS_TO_WIN > SIZE)) {
                     return false;
                 }
-                System.out.println(iDirection);
                 deltaI = 0;
                 deltaJ = 1;
                 break;
@@ -165,7 +163,6 @@ public class Main {
                 if ((i - DOTS_TO_WIN < 0)) {
                     return false;
                 }
-                System.out.println(iDirection);
                 deltaI = -1;
                 deltaJ = 0;
                 break;
@@ -173,7 +170,6 @@ public class Main {
                 if (((i - DOTS_TO_WIN) < 0) || ((j - DOTS_TO_WIN) < 0)) {
                     return false;
                 }
-                System.out.println(iDirection);
                 deltaI = -1;
                 deltaJ = -1;
                 break;
@@ -181,7 +177,6 @@ public class Main {
                 if (((i - DOTS_TO_WIN) < 0) | (j + DOTS_TO_WIN > SIZE)) {
                     return false;
                 }
-                System.out.println(iDirection);
                 deltaI = -1;
                 deltaJ = 1;
                 break;
@@ -189,7 +184,6 @@ public class Main {
                 if ((i + DOTS_TO_WIN > SIZE)) {
                     return false;
                 }
-                System.out.println(iDirection);
                 deltaI = 1;
                 deltaJ = 0;
                 break;
@@ -197,7 +191,6 @@ public class Main {
                 if ((i + DOTS_TO_WIN > SIZE) | (j - DOTS_TO_WIN < 0)) {
                     return false;
                 }
-                System.out.println(iDirection);
                 deltaI = 1;
                 deltaJ = -1;
                 break;
@@ -205,12 +198,10 @@ public class Main {
                 if ((i + DOTS_TO_WIN > SIZE) | (j + DOTS_TO_WIN > SIZE)) {
                     return false;
                 }
-                System.out.println(iDirection);
                 deltaI = 1;
                 deltaJ = 1;
                 break;
             default:
-                System.out.println("Без вариантов");
         }
 
         for (int k = 0; k < DOTS_TO_WIN; k++) {
