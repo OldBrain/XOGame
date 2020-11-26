@@ -119,7 +119,10 @@ public class Main {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
 //                   ***************************
-                if (map[i][j]==c){
+
+                if (map[i][j] == c) {
+//                    System.out.printf("Первый цикл c=%c i=%d= j=%d ",c,i,j);
+//                    System.out.println();
                     if (checkLine(map[i][j], i, j)) {
                         return true;
                     }
@@ -132,83 +135,96 @@ public class Main {
 
     static boolean checkLine(char c, int i, int j) {
 
-        if (!isCoordinateValid(i, j)) {
-            return false;
-        }
+//        if (!isCoordinateValid(i, j)) {
+//            return false;
+//        }
         for (direction dir : direction.values()) {
-if (vectorDirection(dir,i,j,c))
-            return true;
+//            System.out.print(dir+" ");
+            if (vectorDirection(dir, i, j, c)) {
+
+                return true;
+            }
         }
         return false;
     }
 
-    private static boolean isCoordinateValid(int i, int j) {
-        if ((i - DOTS_TO_WIN) < 0 || (j - DOTS_TO_WIN < 0)) {
-            return false;
-        }
-        if ((i + DOTS_TO_WIN - 1) > SIZE || (j + DOTS_TO_WIN > SIZE - 1)) {
-            return false;
-        }
-        return true;
-    }
 
-    static boolean checkWin(char c) {
-
-        if (map[0][0] == c && map[0][1] == c && map[0][2] == c) {
-            return true;
-        }
-        if (map[1][0] == c && map[1][1] == c && map[1][2] == c) {
-            return true;
-        }
-        if (map[2][0] == c && map[2][1] == c && map[2][2] == c) {
-            return true;
-        }
-
-        if (map[0][0] == c && map[1][0] == c && map[2][0] == c) {
-            return true;
-        }
-        if (map[0][1] == c && map[1][1] == c && map[2][1] == c) {
-            return true;
-        }
-        if (map[0][2] == c && map[1][2] == c && map[2][2] == c) {
-            return true;
-        }
-
-        if (map[0][0] == c && map[1][1] == c && map[2][2] == c) {
-            return true;
-        }
-        if (map[0][2] == c && map[1][1] == c && map[2][0] == c) {
-            return true;
-        }
-
-        return false;
-    }
-
-
-    static boolean vectorDirection(direction iDirection,int i,int j,char c) {
-        int count = 0;
+    static boolean vectorDirection(direction iDirection, int i, int j, char c) {
+//        int count = 0;
+        int deltaI = 0;
+        int deltaJ = 0;
         switch (iDirection) {
             case I0Jm:
-                count = 0;
-                for (int k = 0; k < DOTS_TO_WIN; k++) {
-                    if (map[i][j - k] == c) {
-                        count++;
-                    } else {return false;}
-                    }
-                if(count==DOTS_TO_WIN-1) return true;
-                System.out.println("Тест не пройден");
+                if ((DOTS_TO_WIN - j - SIZE < 0)) {
+                    return false;
+                }
+                deltaI = 0;
+                deltaJ = -1;
                 break;
             case I0Jp:
+                if ((j + DOTS_TO_WIN > SIZE)) {
+                    return false;
+                }
+                deltaI = 0;
+                deltaJ = 1;
+                break;
             case ImJ0:
+                if ((DOTS_TO_WIN - i - SIZE < 0)) {
+                    return false;
+                }
+                deltaI = -1;
+                deltaJ = 0;
+                break;
             case ImJm:
+                if (((SIZE-DOTS_TO_WIN - i  < 0)) | ((SIZE-DOTS_TO_WIN - j ) < 0)) {
+                    return false;
+                }
+                deltaI = -1;
+                deltaJ = -1;
+                break;
             case ImJp:
+                if ((j + DOTS_TO_WIN > SIZE) | (DOTS_TO_WIN - i - SIZE < 0)) {
+                    return false;
+                }
+                deltaI = -1;
+                deltaJ = 1;
+                break;
             case IpJ0:
+                if ((i + DOTS_TO_WIN > SIZE)) {
+                    return false;
+                }
+                deltaI = 1;
+                deltaJ = 0;
+                break;
             case IpJm:
+                if ((i + DOTS_TO_WIN > SIZE) | (DOTS_TO_WIN - j - SIZE < 0)) {
+                    return false;
+                }
+                deltaI = 1;
+                deltaJ = -1;
+                break;
             case IpJp:
+                if ((i + DOTS_TO_WIN > SIZE) | (j + DOTS_TO_WIN > SIZE)) {
+                    return false;
+                }
+                deltaI = 1;
+                deltaJ = 1;
+                break;
+            default:
+                System.out.println("Без вариантов");
         }
-        return true;
-    }
 
-}
+            for (int k = 0; k < DOTS_TO_WIN; k++) {
+                if (map[i + deltaI][j + deltaJ] == c) {
+                    System.out.printf("Проверяем i=%d j=%d k=%d c=%c", i + deltaI, j + deltaJ, k, c);
+                    System.out.println();
+                } else {
+                    return false;
+                }
+            }
+
+        return false;
+    }
+    }
 
 
