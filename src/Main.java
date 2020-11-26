@@ -4,11 +4,12 @@ import java.util.Scanner;
 
 
 public class Main {
+    private static int count;
+
     public static enum direction {IpJp, ImJm, IpJm, ImJp, I0Jp, I0Jm, ImJ0, IpJ0}
 
     static final int SIZE = 3;
     static final int DOTS_TO_WIN = 3;
-
     static final char DOT_X = 'X';
     static final char DOT_O = 'O';
     static final char DOT_EMPTY = '.';
@@ -141,7 +142,6 @@ public class Main {
         for (direction dir : direction.values()) {
 //            System.out.print(dir+" ");
             if (vectorDirection(dir, i, j, c)) {
-
                 return true;
             }
         }
@@ -150,14 +150,15 @@ public class Main {
 
 
     static boolean vectorDirection(direction iDirection, int i, int j, char c) {
-//        int count = 0;
+        count = 0;
         int deltaI = 0;
         int deltaJ = 0;
         switch (iDirection) {
             case I0Jm:
-                if ((DOTS_TO_WIN - j - SIZE < 0)) {
+                if ((j-DOTS_TO_WIN  < 0)) {
                     return false;
                 }
+                System.out.println(iDirection);
                 deltaI = 0;
                 deltaJ = -1;
                 break;
@@ -165,27 +166,31 @@ public class Main {
                 if ((j + DOTS_TO_WIN > SIZE)) {
                     return false;
                 }
+                System.out.println(iDirection);
                 deltaI = 0;
                 deltaJ = 1;
                 break;
             case ImJ0:
-                if ((DOTS_TO_WIN - i - SIZE < 0)) {
+                if ((i-DOTS_TO_WIN  < 0)) {
                     return false;
                 }
+                System.out.println(iDirection);
                 deltaI = -1;
                 deltaJ = 0;
                 break;
             case ImJm:
-                if (((SIZE-DOTS_TO_WIN - i  < 0)) | ((SIZE-DOTS_TO_WIN - j ) < 0)) {
+                if (((i-DOTS_TO_WIN)<0)|| ((j-DOTS_TO_WIN) < 0)) {
                     return false;
                 }
+                System.out.println(iDirection);
                 deltaI = -1;
                 deltaJ = -1;
                 break;
             case ImJp:
-                if ((j + DOTS_TO_WIN > SIZE) | (DOTS_TO_WIN - i - SIZE < 0)) {
+                if ( ((i-DOTS_TO_WIN)  < 0)|(j + DOTS_TO_WIN > SIZE)) {
                     return false;
                 }
+                System.out.println(iDirection);
                 deltaI = -1;
                 deltaJ = 1;
                 break;
@@ -193,13 +198,15 @@ public class Main {
                 if ((i + DOTS_TO_WIN > SIZE)) {
                     return false;
                 }
+                System.out.println(iDirection);
                 deltaI = 1;
                 deltaJ = 0;
                 break;
             case IpJm:
-                if ((i + DOTS_TO_WIN > SIZE) | (DOTS_TO_WIN - j - SIZE < 0)) {
+                if ((i + DOTS_TO_WIN > SIZE) | (j-DOTS_TO_WIN < 0)) {
                     return false;
                 }
+                System.out.println(iDirection);
                 deltaI = 1;
                 deltaJ = -1;
                 break;
@@ -207,6 +214,7 @@ public class Main {
                 if ((i + DOTS_TO_WIN > SIZE) | (j + DOTS_TO_WIN > SIZE)) {
                     return false;
                 }
+                System.out.println(iDirection);
                 deltaI = 1;
                 deltaJ = 1;
                 break;
@@ -214,16 +222,30 @@ public class Main {
                 System.out.println("Без вариантов");
         }
 
-            for (int k = 0; k < DOTS_TO_WIN; k++) {
-                if (map[i + deltaI][j + deltaJ] == c) {
-                    System.out.printf("Проверяем i=%d j=%d k=%d c=%c", i + deltaI, j + deltaJ, k, c);
-                    System.out.println();
+        for (int k = 0; k < DOTS_TO_WIN; k++) {
+
+//            System.out.printf("i=%d + deltaI=%d j=%d + deltaJ=%d k=%d c=%c", i,deltaI,j, deltaJ, k, c);
+//            System.out.println();
+            if (map[i ][j] == c) {
+                char tmp = map[i][j];
+
+                    count++;
+//                    System.out.printf("Проверяем i=%d + deltaI=%d j=%d + deltaJ=%d k=%d c=%c", i,deltaI,j, deltaJ, k, c);
+//                    System.out.println(count);
                 } else {
                     return false;
                 }
+                i+=deltaI;
+                j+=deltaJ;
             }
 
-        return false;
+        if (count == 3) {
+
+            return true;
+        } else {
+            return false;
+        }
+
     }
     }
 
