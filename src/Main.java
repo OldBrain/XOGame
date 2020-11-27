@@ -146,7 +146,7 @@ public class Main {
         int deltaJ = 0;
         switch (iDirection) {
             case I0Jm:
-                if ((j - DOTS_TO_WIN < 0)) {
+                if ((j-(DOTS_TO_WIN-1) < 0)) {
                     return false;
                 }
                 deltaI = 0;
@@ -160,21 +160,21 @@ public class Main {
                 deltaJ = 1;
                 break;
             case ImJ0:
-                if ((i - DOTS_TO_WIN < 0)) {
+                if ((i-(DOTS_TO_WIN-1) < 0)) {
                     return false;
                 }
                 deltaI = -1;
                 deltaJ = 0;
                 break;
             case ImJm:
-                if (((i - DOTS_TO_WIN) < 0) || ((j - DOTS_TO_WIN) < 0)) {
+                if (((i-(DOTS_TO_WIN-1)) < 0) || ((j-(DOTS_TO_WIN-1)) < 0)) {
                     return false;
                 }
                 deltaI = -1;
                 deltaJ = -1;
                 break;
             case ImJp:
-                if (((i - DOTS_TO_WIN) < 0) | (j + DOTS_TO_WIN > SIZE)) {
+                if ((i-(DOTS_TO_WIN-1) < 0) | (j + DOTS_TO_WIN > SIZE)) {
                     return false;
                 }
                 deltaI = -1;
@@ -188,7 +188,8 @@ public class Main {
                 deltaJ = 0;
                 break;
             case IpJm:
-                if ((i + DOTS_TO_WIN > SIZE) | (j - DOTS_TO_WIN < 0)) {
+
+                if ((i + DOTS_TO_WIN > SIZE) | ( j-(DOTS_TO_WIN-1) < 0)) {
                     return false;
                 }
                 deltaI = 1;
