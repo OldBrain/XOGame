@@ -13,9 +13,12 @@ public class Main {
     static final char DOT_X = 'X';
     static final char DOT_O = 'O';
     static final char DOT_EMPTY = '.';
+    static final int I_INCREMENTS = 0;
+    static final int J_INCREMENTS = 1;
+
 
     static char[][] map;
-
+    static int[] increments = new int[2];
     static Scanner sc = new Scanner(System.in);
     static Random random = new Random();
 
@@ -27,6 +30,7 @@ public class Main {
         while (true) {
             humanTurn();
             printMap();
+            printValidDirection();
 //            if (checkWin(DOT_X)) {
             if (smartCheckWin(DOT_X)) {
                 System.out.println("Вы выиграли!!!");
@@ -39,6 +43,7 @@ public class Main {
 
             aiTurn();
             printMap();
+            printValidDirection();
             if (smartCheckWin(DOT_O)) {
                 System.out.println("Комьютер победил");
                 break;
@@ -47,6 +52,15 @@ public class Main {
                 System.out.println("Ничья");
                 break;
             }
+        }
+    }
+
+    private static void printValidDirection() {
+        for (int i = 0; i <SIZE ; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                System.out.print(getValidIncrement(i,j)[0]+","+getValidIncrement(i,j)[1]+" ");
+            }
+            System.out.println();
         }
     }
 
@@ -63,12 +77,15 @@ public class Main {
         System.out.print("  ");
         for (int i = 0; i < SIZE; i++) {
             System.out.print(i + 1 + " ");
+
+
         }
         System.out.println();
         for (int i = 0; i < SIZE; i++) {
             System.out.print(i + 1 + " ");
             for (int j = 0; j < SIZE; j++) {
                 System.out.printf("%c ", map[i][j]);
+
             }
             System.out.println();
         }
@@ -131,7 +148,6 @@ public class Main {
     static boolean checkLine(char c, int i, int j) {
 
         for (direction dir : direction.values()) {
-//            System.out.print(dir+" ");
             if (vectorDirection(dir, i, j, c)) {
                 return true;
             }
@@ -140,11 +156,11 @@ public class Main {
     }
 
 
-    static boolean vectorDirection(direction iDirection, int i, int j, char c) {
+    static boolean vectorDirection(direction ijDirection, int i, int j, char c) {
         count = 0;
         int deltaI = 0;
         int deltaJ = 0;
-        switch (iDirection) {
+        switch (ijDirection) {
             case I0Jm:
                 if ((j-(DOTS_TO_WIN-1) < 0)) {
                     return false;
@@ -223,6 +239,75 @@ public class Main {
         }
 
     }
+
+static int[] getValidIncrement(int i, int j) {
+
+    for (direction dir : direction.values()) {
+        switch (dir) {
+            case I0Jm:
+                if ((j - DOTS_TO_WIN < 0)) {
+                    break;
+                }
+                increments[I_INCREMENTS] = 0;
+                increments[J_INCREMENTS] = -1;
+                break;
+            case I0Jp:
+                if ((j + DOTS_TO_WIN > SIZE)) {
+                    break;
+                }
+                increments[I_INCREMENTS] = 0;
+                increments[J_INCREMENTS] = 1;
+                break;
+            case ImJ0:
+                if ((i - DOTS_TO_WIN < 0)) {
+                    break;
+                }
+                increments[I_INCREMENTS] = -1;
+                increments[J_INCREMENTS] = 0;
+                break;
+            case ImJm:
+                if (((i - DOTS_TO_WIN) < 0) || ((j - DOTS_TO_WIN) < 0)) {
+                    break;
+                }
+                increments[I_INCREMENTS] = -1;
+                increments[J_INCREMENTS] = -1;
+                break;
+            case ImJp:
+                if (((i - DOTS_TO_WIN) < 0) | (j + DOTS_TO_WIN > SIZE)) {
+                    break;
+                }
+                increments[I_INCREMENTS] = -1;
+                increments[J_INCREMENTS] = 1;
+                break;
+            case IpJ0:
+                if ((i + DOTS_TO_WIN > SIZE)) {
+                    break;
+                }
+                increments[I_INCREMENTS] = 1;
+                increments[J_INCREMENTS] = 0;
+                break;
+            case IpJm:
+                if ((i + DOTS_TO_WIN > SIZE) | (j - DOTS_TO_WIN < 0)) {
+                    break;
+                }
+                increments[I_INCREMENTS] = 1;
+                increments[J_INCREMENTS] = -1;
+                break;
+            case IpJp:
+                if ((i + DOTS_TO_WIN > SIZE) | (j + DOTS_TO_WIN > SIZE)) {
+                    break;
+                }
+                increments[I_INCREMENTS] = 1;
+                increments[J_INCREMENTS] = 1;
+                break;
+            default:
+                System.out.println("Switch не сработал");
+                increments[I_INCREMENTS] = 0;
+                increments[J_INCREMENTS] = 0;
+        }
+    }
+    return increments;
+}
 }
 
 
