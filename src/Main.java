@@ -64,12 +64,15 @@ public class Main {
         
         for (int i = 0; i <SIZE ; i++) {
             for (int j = 0; j < SIZE; j++) {
+
                 for (direction dir : direction.values()) {
                     int deltaI = getValidIncrement(dir, i, j)[I_INCREMENTS];
                     int deltaJ = getValidIncrement(dir, i, j)[J_INCREMENTS];
                     if (deltaI!=0|deltaJ!=0) {
+                        initCells(i, j, deltaI, deltaJ);
+
 //                        for (int k = 0; k < DOTS_TO_WIN; k++) {
-               priority[i + deltaI][j + deltaJ] = priority[i + deltaI][j + deltaJ] + 1;
+//                        priority[i + deltaI][j + deltaJ] = priority[i + deltaI][j + deltaJ] + 1;
 //                        }
                     }
 
@@ -77,6 +80,28 @@ public class Main {
                 }
             System.out.println();
         }
+    }
+
+    private static void initCells(int i, int j, int deltaI, int deltaJ) {
+        int emptyCount=0;
+        int countO = 0;
+        int countX = 0;
+        for (int k = 0; k < DOTS_TO_WIN; k++) {
+            if (map[i][j] == DOT_EMPTY) {
+                emptyCount++;
+                priority[i][j] = priority[i][j] + 1;
+            } else {
+                priority[i][j]=0;
+                if (map[i][j]==DOT_O) countO++;
+                if (map[i][j]==DOT_X) countX++;
+                }
+
+
+            i += deltaI;
+            j += deltaJ;
+        }
+
+
     }
 
     static void initMap() {
