@@ -1,5 +1,22 @@
 import java.util.Random;
 import java.util.Scanner;
+// Принцип интеллекта бота (НЕ ЗАКОНЧЕН ТРЕБУЕТ АНАЛИЗА И ДОРАБОТКИ)
+//                1. ПУСТОЕ ПОЛЕ
+//Создаем массив приоритетов, он синхронизирован с массивом поля.
+// Проходим по всем валидным направлениям линий и добавляем +1 к значению.
+// В результате получаем 6 4 6
+//                       4 8 4
+//                       6 4 6. (двоится так как каждая линия проверяется дважды, пока не критично).
+// Центральная клетка имеет приоритет т.к. она занимает наибольшее количестао линий, это правильно.
+//После хода игрока снова проходим по всем валидным линиям.
+// ********************* Далее требует анализа и доработки******************
+// Пока расчет приоритета выполнин так:
+// 1.Если клетка занята символом то приоритет 0 в нее уже ходить нельзя.
+// 2.Если в линии  присутствуют и Х и 0 то линия не перспективна, ничего не делаем.
+// 3.Если в линии только X или только 0 то увеличиваем значение пустой ячейки
+// на количество символов умноженное на "коэффициент агрессии"(для тактики
+// победы коэффициент агрессии 0 больше чем X.  надо анализировать и доработать).
+//3. Ищем максимальный элемент масива приоритетов и делаем ход.
 
 
 public class Main {
@@ -9,6 +26,9 @@ public class Main {
 
     static final int SIZE = 3;
     static final int DOTS_TO_WIN = 3;
+    //    Коэффициенты агрессии
+    static final int KX = 1;
+    static final int K0 = 1;
     static final char DOT_X = 'X';
     static final char DOT_O = 'O';
     static final char DOT_EMPTY = '.';
@@ -19,24 +39,24 @@ public class Main {
 
 
     static char[][] map;
-    static int[][] priority=new int[SIZE][SIZE];
+    static int[][] priority = new int[SIZE][SIZE];
     static int[] increments = new int[2];
     static Scanner sc = new Scanner(System.in);
     static Random random = new Random();
 
 
-
     public static void main(String[] args) {
         initMap();
         printMap();
-        initPriorityCells();
-        printPriority();
+//        initPriorityCells();
+//        printPriority();
 
         while (true) {
             humanTurn();
             printMap();
-            initPriorityCells();
-//            if (checkWin(DOT_X)) {
+
+
+//            printPriority();
             if (smartCheckWin(DOT_X)) {
                 System.out.println("Вы выиграли!!!");
                 break;
@@ -45,10 +65,8 @@ public class Main {
                 System.out.println("Ничья");
                 break;
             }
-
-            aiTurn();
+            smartBotTurn();
             printMap();
-            initPriorityCells();
             if (smartCheckWin(DOT_O)) {
                 System.out.println("Комьютер победил");
                 break;
@@ -60,15 +78,34 @@ public class Main {
         }
     }
 
+    private static void smartBotTurn() {
+        initPriorityCells();
+        int max;
+        int maxI = 0;
+        int maxJ = 0;
+        max = priority[0][0];
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (priority[i][j] > max) {
+                    max = priority[i][j];
+                    maxI = i;
+                    maxJ = j;
+                }
+            }
+        }
+
+        map[maxI][maxJ] = DOT_O;
+    }
+
     private static void initPriorityCells() {
-        
-        for (int i = 0; i <SIZE ; i++) {
+
+        for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
 
                 for (direction dir : direction.values()) {
                     int deltaI = getValidIncrement(dir, i, j)[I_INCREMENTS];
                     int deltaJ = getValidIncrement(dir, i, j)[J_INCREMENTS];
-                    if (deltaI!=0|deltaJ!=0) {
+                    if (deltaI != 0 | deltaJ != 0) {
                         initCells(i, j, deltaI, deltaJ);
 
 //                        for (int k = 0; k < DOTS_TO_WIN; k++) {
@@ -77,31 +114,53 @@ public class Main {
                     }
 
                 }
-                }
+            }
             System.out.println();
         }
     }
 
     private static void initCells(int i, int j, int deltaI, int deltaJ) {
-        int emptyCount=0;
-        int countO = 0;
-        int countX = 0;
+        int emptyCount = getCountSymbol(DOT_EMPTY, i, j, deltaI, deltaJ);
+        ;
+        int countO = getCountSymbol(DOT_O, i, j, deltaI, deltaJ);
+        int countX = getCountSymbol(DOT_X, i, j, deltaI, deltaJ);
+
+
         for (int k = 0; k < DOTS_TO_WIN; k++) {
             if (map[i][j] == DOT_EMPTY) {
-                emptyCount++;
+//                emptyCount++;
+
                 priority[i][j] = priority[i][j] + 1;
-            } else {
-                priority[i][j]=0;
-                if (map[i][j]==DOT_O) countO++;
-                if (map[i][j]==DOT_X) countX++;
+                if (countO == 0 || countX == 0) {/*Перспективная линия для победы*/
+                    priority[i][j] = priority[i][j] + KX * countX + K0 * countO;
+//                    System.out.printf("Координаты %d,%d. добавляю %d кол.X=%d кол.0=%d",i,j,(KX * countX + K0 * countO),countX,countO);
+//                    System.out.println();
+                } else {/*Эта линия бесперспективна*/
+//                    priority[i][j] = priority[i][j] + countO + countX;
                 }
 
+            } else {
+                priority[i][j] = 0;
+
+            }
 
             i += deltaI;
             j += deltaJ;
         }
 
 
+    }
+
+    private static int getCountSymbol(char symbol, int i, int j, int deltaI, int deltaJ) {
+        int result = 0;
+        for (int k = 0; k < DOTS_TO_WIN; k++) {
+            if (map[i][j] == symbol) {
+                result++;
+            }
+            i += deltaI;
+            j += deltaJ;
+        }
+        return result;
     }
 
     static void initMap() {
@@ -142,7 +201,7 @@ public class Main {
         for (int i = 0; i < SIZE; i++) {
             System.out.print(i + 1 + " ");
             for (int j = 0; j < SIZE; j++) {
-                System.out.printf("%d ",priority[i][j]);
+                System.out.printf("%d ", priority[i][j]);
 
             }
             System.out.println();
@@ -221,7 +280,7 @@ public class Main {
         int deltaJ = 0;
         switch (ijDirection) {
             case I0Jm:
-                if ((j-(DOTS_TO_WIN-1) < 0)) {
+                if ((j - (DOTS_TO_WIN - 1) < 0)) {
                     return false;
                 }
                 deltaI = 0;
@@ -235,21 +294,21 @@ public class Main {
                 deltaJ = 1;
                 break;
             case ImJ0:
-                if ((i-(DOTS_TO_WIN-1) < 0)) {
+                if ((i - (DOTS_TO_WIN - 1) < 0)) {
                     return false;
                 }
                 deltaI = -1;
                 deltaJ = 0;
                 break;
             case ImJm:
-                if (((i-(DOTS_TO_WIN-1)) < 0) || ((j-(DOTS_TO_WIN-1)) < 0)) {
+                if (((i - (DOTS_TO_WIN - 1)) < 0) || ((j - (DOTS_TO_WIN - 1)) < 0)) {
                     return false;
                 }
                 deltaI = -1;
                 deltaJ = -1;
                 break;
             case ImJp:
-                if ((i-(DOTS_TO_WIN-1) < 0) | (j + DOTS_TO_WIN > SIZE)) {
+                if ((i - (DOTS_TO_WIN - 1) < 0) | (j + DOTS_TO_WIN > SIZE)) {
                     return false;
                 }
                 deltaI = -1;
@@ -264,7 +323,7 @@ public class Main {
                 break;
             case IpJm:
 
-                if ((i + DOTS_TO_WIN > SIZE) | ( j-(DOTS_TO_WIN-1) < 0)) {
+                if ((i + DOTS_TO_WIN > SIZE) | (j - (DOTS_TO_WIN - 1) < 0)) {
                     return false;
                 }
                 deltaI = 1;
@@ -299,85 +358,82 @@ public class Main {
 
     }
 
-static int[] getValidIncrement(direction dir, int i, int j) {
+    static int[] getValidIncrement(direction dir, int i, int j) {
 
-    increments[I_INCREMENTS] = 0;
-    increments[J_INCREMENTS] = 0;
-    int k = 0;
+        increments[I_INCREMENTS] = 0;
+        increments[J_INCREMENTS] = 0;
+        int k = 0;
 
-    switch (dir) {
-        case I0Jm:
-            if ((j-(DOTS_TO_WIN-1)<0)) {
+        switch (dir) {
+            case I0Jm:
+                if ((j - (DOTS_TO_WIN - 1) < 0)) {
 
+
+                    increments[I_INCREMENTS] = 0;
+                    increments[J_INCREMENTS] = 0;
+                    return increments;
+                }
 
                 increments[I_INCREMENTS] = 0;
+                increments[J_INCREMENTS] = -1;
+                return increments;
+            case I0Jp:
+                if ((j + DOTS_TO_WIN > SIZE)) {
+                    return increments;
+                }
+                increments[I_INCREMENTS] = 0;
+                increments[J_INCREMENTS] = 1;
+                return increments;
+            case ImJ0:
+                if ((i - (DOTS_TO_WIN - 1) < 0)) {
+                    return increments;
+                }
+                increments[I_INCREMENTS] = -1;
                 increments[J_INCREMENTS] = 0;
                 return increments;
-            }
+            case ImJm:
+                if ((i - (DOTS_TO_WIN - 1) < 0) || ((j - (DOTS_TO_WIN - 1) < 0))) {
+                    return increments;
+                }
+                increments[I_INCREMENTS] = -1;
+                increments[J_INCREMENTS] = -1;
+                return increments;
+            case ImJp:
+                if ((i - (DOTS_TO_WIN - 1) < 0) | (j + DOTS_TO_WIN > SIZE)) {
+                    return increments;
+                }
+                increments[I_INCREMENTS] = -1;
+                increments[J_INCREMENTS] = 1;
+                return increments;
+            case IpJ0:
+                if ((i + DOTS_TO_WIN > SIZE)) {
+                    return increments;
+                }
+                increments[I_INCREMENTS] = 1;
+                increments[J_INCREMENTS] = 0;
+                return increments;
+            case IpJm:
+                if ((i + DOTS_TO_WIN > SIZE) | ((j - (DOTS_TO_WIN - 1) < 0))) {
+                    return increments;
+                }
+                increments[I_INCREMENTS] = 1;
+                increments[J_INCREMENTS] = -1;
+                return increments;
+            case IpJp:
+                if ((i + DOTS_TO_WIN > SIZE) | (j + DOTS_TO_WIN > SIZE)) {
+                    return increments;
+                }
+                increments[I_INCREMENTS] = 1;
+                increments[J_INCREMENTS] = 1;
+                return increments;
+            default:
+                System.out.println("Switch не сработал");
+                increments[I_INCREMENTS] = 0;
+                increments[J_INCREMENTS] = 0;
+        }
 
-            increments[I_INCREMENTS] = 0;
-            increments[J_INCREMENTS] = -1;
-            return increments;
-        case I0Jp:
-            if ((j + DOTS_TO_WIN > SIZE)) {
-                return increments;
-            }
-            increments[I_INCREMENTS] = 0;
-            increments[J_INCREMENTS] = 1;
-            return increments;
-        case ImJ0:
-            if ((i-(DOTS_TO_WIN-1)<0)) {
-                return increments;
-            }
-            increments[I_INCREMENTS] = -1;
-            increments[J_INCREMENTS] = 0;
-            return increments;
-        case ImJm:
-            if ((i-(DOTS_TO_WIN-1) < 0) || ((j-(DOTS_TO_WIN-1)<0))) {
-                return increments;
-            }
-            increments[I_INCREMENTS] = -1;
-            increments[J_INCREMENTS] = -1;
-            return increments;
-        case ImJp:
-            if ((i-(DOTS_TO_WIN-1) < 0) | (j + DOTS_TO_WIN > SIZE)) {
-                return increments;
-            }
-            increments[I_INCREMENTS] = -1;
-            increments[J_INCREMENTS] = 1;
-            return increments;
-        case IpJ0:
-            if ((i + DOTS_TO_WIN > SIZE)) {
-                return increments;
-            }
-            increments[I_INCREMENTS] = 1;
-            increments[J_INCREMENTS] = 0;
-            return increments;
-        case IpJm:
-            if ((i + DOTS_TO_WIN > SIZE) | ((j-(DOTS_TO_WIN-1)<0))) {
-                return increments;
-            }
-            increments[I_INCREMENTS] = 1;
-            increments[J_INCREMENTS] = -1;
-            return increments;
-        case IpJp:
-            if ((i + DOTS_TO_WIN > SIZE) | (j + DOTS_TO_WIN > SIZE)) {
-                return increments;
-            }
-            increments[I_INCREMENTS] = 1;
-            increments[J_INCREMENTS] = 1;
-            return increments;
-        default:
-            System.out.println("Switch не сработал");
-            increments[I_INCREMENTS] = 0;
-            increments[J_INCREMENTS] = 0;
+        return increments;
     }
-
-    return increments;
-}
-
-
-
 
 
 }
