@@ -27,8 +27,8 @@ public class Main {
     static final int SIZE = 3;
     static final int DOTS_TO_WIN = 3;
     //    Коэффициенты агрессии
-    static final int KX = 1;
-    static final int K0 = 1;
+    static final int KX = 4;
+    static final int K0 = 4;
     static final char DOT_X = 'X';
     static final char DOT_O = 'O';
     static final char DOT_EMPTY = '.';
@@ -46,36 +46,88 @@ public class Main {
 
 
     public static void main(String[] args) {
+        boolean isEnd = false;
+        int cas = askFerstTurn();
+        beginInit();
+        while (!isEnd) {
+
+            switch (cas) {
+                case 0:
+                    turnComp();
+                    if (checkAfteTurn()){
+                        isEnd = true;
+                        break;
+                    }
+                    turnHuman();
+                    if (checkAfteTurn()) {
+                        isEnd = true;
+                        break;
+                    }
+                    break;
+                case 1:
+                    turnHuman();
+                    if (checkAfteTurn()) {
+                        isEnd = true;
+                        break;
+                    }
+                    turnComp();
+                    if (checkAfteTurn()) {
+                        isEnd = true;
+                        break;
+                    }
+                    break;
+
+            }
+
+        }
+    }
+
+    private static void turnHuman() {
+        humanTurn();
+        printMap();
+        initPriorityCells();
+//            printPriority();
+    }
+
+    private static boolean checkAfteTurn() {
+        if (smartCheckWin(DOT_X)) {
+            System.out.println("Вы выиграли!!!");
+            return true;
+        }
+        if (isFull()) {
+            System.out.println("Ничья");
+            return true;
+        }
+        if (smartCheckWin(DOT_O)) {
+            System.out.println("Комьютер победил");
+            return true;
+        }
+        return false;
+    }
+
+    private static void turnComp() {
+        smartBotTurn();
+        printMap();
+        initPriorityCells();
+    }
+
+    private static void beginInit() {
         initMap();
         printMap();
-//        initPriorityCells();
+        initPriorityCells();
 //        printPriority();
+    }
 
-        while (true) {
-            humanTurn();
-            printMap();
-
-
-//            printPriority();
-            if (smartCheckWin(DOT_X)) {
-                System.out.println("Вы выиграли!!!");
-                break;
-            }
-            if (isFull()) {
-                System.out.println("Ничья");
-                break;
-            }
-            smartBotTurn();
-            printMap();
-            if (smartCheckWin(DOT_O)) {
-                System.out.println("Комьютер победил");
-                break;
-            }
-            if (isFull()) {
-                System.out.println("Ничья");
-                break;
-            }
-        }
+    private static int askFerstTurn() {
+        int ansver=0;
+        do {
+            System.out.println("Кто ходит первым?");
+            System.out.println("0-компьютер");
+            System.out.println("1-ты");
+            ansver = sc.nextInt();
+            System.out.println(ansver);
+        } while (ansver !=1&&ansver!=0);
+        return ansver;
     }
 
     private static void smartBotTurn() {
@@ -98,7 +150,7 @@ public class Main {
     }
 
     private static void initPriorityCells() {
-
+        priorityZero();
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
 
@@ -115,28 +167,24 @@ public class Main {
 
                 }
             }
-            System.out.println();
         }
+        System.out.println();
     }
 
     private static void initCells(int i, int j, int deltaI, int deltaJ) {
         int emptyCount = getCountSymbol(DOT_EMPTY, i, j, deltaI, deltaJ);
-        ;
         int countO = getCountSymbol(DOT_O, i, j, deltaI, deltaJ);
         int countX = getCountSymbol(DOT_X, i, j, deltaI, deltaJ);
 
-
         for (int k = 0; k < DOTS_TO_WIN; k++) {
             if (map[i][j] == DOT_EMPTY) {
-//                emptyCount++;
-
                 priority[i][j] = priority[i][j] + 1;
                 if (countO == 0 || countX == 0) {/*Перспективная линия для победы*/
                     priority[i][j] = priority[i][j] + KX * countX + K0 * countO;
 //                    System.out.printf("Координаты %d,%d. добавляю %d кол.X=%d кол.0=%d",i,j,(KX * countX + K0 * countO),countX,countO);
 //                    System.out.println();
                 } else {/*Эта линия бесперспективна*/
-//                    priority[i][j] = priority[i][j] + countO + countX;
+                    priority[i][j] = (priority[i][j]+K0/2)-1;
                 }
 
             } else {
@@ -149,6 +197,14 @@ public class Main {
         }
 
 
+    }
+
+    private static void priorityZero() {
+        for (int k = 0; k < priority.length; k++) {
+            for (int l = 0; l < priority.length; l++) {
+                priority[k][l] = 0;
+            }
+        }
     }
 
     private static int getCountSymbol(char symbol, int i, int j, int deltaI, int deltaJ) {
@@ -173,6 +229,22 @@ public class Main {
     }
 
     static void printMap() {
+        for (int i = 0; i < SIZE; i++) {
+            System.out.print((i + 1) + " ");
+            for (int j = 0; j < SIZE; j++) {
+                System.out.printf("%c ", map[i][j]);
+            }
+            System.out.println();
+        }
+        System.out.print(" ");
+        System.out.println("-------> X");
+        System.out.print(" ");
+        for (int i = 0; i < SIZE; i++) {
+            System.out.print(i + 1 + " ");
+        }
+        System.out.println();
+    }
+    static void printMap1() {
         System.out.print("  ");
         for (int i = 0; i < SIZE; i++) {
             System.out.print(i + 1 + " ");
@@ -191,18 +263,9 @@ public class Main {
     }
 
     static void printPriority() {
-        System.out.print("  ");
         for (int i = 0; i < SIZE; i++) {
-            System.out.print(i + 1 + " ");
-
-
-        }
-        System.out.println();
-        for (int i = 0; i < SIZE; i++) {
-            System.out.print(i + 1 + " ");
             for (int j = 0; j < SIZE; j++) {
                 System.out.printf("%d ", priority[i][j]);
-
             }
             System.out.println();
         }
